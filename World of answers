@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World of Answers</title>
+  <style>
+    :root {
+      --primary-color: #0061ff;
+      --background: #f5f7fa;
+      --card-bg: #ffffff;
+      --text-color: #333;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--background);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 30px;
+      max-width: 600px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      font-size: 26px;
+    }
+
+    .question {
+      font-weight: bold;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .answer {
+      font-size: 16px;
+      color: var(--text-color);
+      margin-bottom: 20px;
+    }
+
+    button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #004dd9;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 13px;
+      color: #999;
+    }
+
+    .loading {
+      font-style: italic;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌍 World of Answers</h1>
+    <div id="qa">
+      <div class="question">Tap "Generate" to get your daily wisdom.</div>
+      <div class="answer"></div>
+    </div>
+    <button onclick="getAnswer()">🎯 Generate Answer</button>
+    <div class="footer">Powered by ChatGPT via OpenAI</div>
+  </div>
+
+  <script>
+    const openaiApiKey = "YOUR_OPENAI_API_KEY_HERE"; // Replace with your real API key
+
+    const questions = [
+      "What is one life-changing habit to adopt?",
+      "How can someone build self-confidence?",
+      "What is the key to lifelong learning?",
+      "What’s a simple trick to manage stress daily?",
+      "How can I overcome procrastination?",
+      "What mindset helps with personal growth?",
+      "What advice do successful people follow?",
+      "What is something everyone should reflect on daily?"
+    ];
+
+    function getAnswer() {
+      const question = questions[Math.floor(Math.random() * questions.length)];
+      document.querySelector('.question').textContent = question;
+      document.querySelector('.answer').innerHTML = "<span class='loading'>Thinking...</span>";
+
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openaiApiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "You are a helpful and inspiring expert who gives thoughtful, short answers." },
+            { role: "user", content: question }
+          ],
+          max_tokens: 100,
+          temperature: 0.8
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          const reply = data.choices[0].message.content.trim();
+          document.querySelector('.answer').textContent = reply;
+        })
+        .catch(error => {
+          console.error(error);
+          document.querySelector('.answer').innerHTML = "<span style='color: red;'>Failed to load answer.</span>";
+        });
+    }
+  </script>
+</body>
+</html>
